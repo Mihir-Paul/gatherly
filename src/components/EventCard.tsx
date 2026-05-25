@@ -2,8 +2,10 @@ import { Calendar, MapPin, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { motion } from "motion/react";
+import React from "react";
 
 interface EventCardProps {
+  key?: React.Key;
   event: {
     id: string;
     title: string;
