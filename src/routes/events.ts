@@ -11,7 +11,7 @@ const EventSchema = z.object({
   description: z.string().min(10, "Description must be at least 10 characters"),
   date: z.string().refine((val) => !isNaN(new Date(val).getTime()), "Invalid date format").transform((val) => new Date(val)),
   location: z.string().min(3, "Location must be at least 3 characters"),
-  imageUrl: z.string().or(z.literal("")).refine((val) => val === "" || val.startsWith("http"), "Must be empty or a valid URL").optional().nullable(),
+  imageUrl: z.string().or(z.literal("")).refine((val) => val === "" || val.startsWith("http"), "Must be empty or a valid URL").optional().nullable().transform(val => val === "" || val == null ? null : val),
 });
 
 // GET all events (public)
@@ -56,14 +56,18 @@ router.post("/", verifyToken, async (req: AuthRequest, res) => {
     const data = EventSchema.parse(req.body);
     const event = await db.event.create({
       data: {
-        ...data,
-        creatorId: req.user!.id,
+        title: data.title,
+        description: data.description,
+        date: data.date,
+        location: data.location,
+        imageUrl: data.imageUrl,
+        creatorId: String(req.user!.id),
       },
     });
     res.status(201).json(event);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errorMessages = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(", ");
+      const errorMessages = error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(", ");
       return res.status(400).json({ error: `Validation failed: ${errorMessages}` });
     }
     res.status(500).json({ error: "Failed to create event" });

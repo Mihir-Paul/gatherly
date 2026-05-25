@@ -7,6 +7,8 @@ import CreateEvent from "./pages/CreateEvent.tsx";
 import EventDetail from "./pages/EventDetail.tsx";
 import Ticket from "./pages/Ticket.tsx";
 
+import React from "react";
+
 // Protected Route Wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("token");
